@@ -421,6 +421,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          ISSUES_ENABLED=$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.has_issues')
+          if [ "$ISSUES_ENABLED" != "true" ]; then
+            echo "::warning::Discussions are unavailable and issues are disabled; skipping report publication."
+            exit 0
+          fi
+
           # Create label if it doesn't exist (ignore errors if it already exists)
           gh label create "skill-quality" --description "Automated skill quality reports" --color "d4c5f9" 2>/dev/null || true
           ISSUE_URL=$(gh issue create \
